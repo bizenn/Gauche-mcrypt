@@ -1,0 +1,92 @@
+# Makefile.in                      -*- mode: Makefile -*-
+#
+# Copyright (c) 2005-2008 Tatsuya BIZENN, All rights reserved.
+
+SHELL		= @SHELL@
+prefix		= @prefix@
+exec_prefix	= @exec_prefix@
+bindir		= @bindir@
+libdir		= @libdir@
+datadir     	= @datadir@
+datarootdir 	= @datarootdir@
+srcdir      	= @srcdir@
+VPATH       	= $(srcdir)
+PACKAGE_ROOT	= org
+PACKAGE_DIR	= $(PACKAGE_ROOT)/visha/crypt
+
+# These may be overridden by make invocators
+DESTDIR		=
+GOSH           = @GOSH@
+GAUCHE_CONFIG  = @GAUCHE_CONFIG@
+GAUCHE_PACKAGE = @GAUCHE_PACKAGE@
+INSTALL        = @GAUCHE_INSTALL@ -C
+
+SOEXT  = @SOEXT@
+OBJEXT = @OBJEXT@
+EXEEXT = @EXEEXT@
+LOCAL_PATHS = @LOCAL_PATHS@
+
+# Set by configure
+PACKAGE_NAME	= @PACKAGE_NAME@
+PACKAGE_FILE	= ${PACKAGE_NAME}.gpd
+
+MODULE		= mcrypt
+
+ARCHFILES	= $(MODULE).$(SOEXT)
+SCMFILES	= $(MODULE).scm
+HEADERS		=
+
+TARGET		= $(ARCHFILES)
+SRCS		= $(srcdir)/mcrypt_if.c $(srcdir)/mcrypt_port.c $(srcdir)/mcrypt.stub
+CONFIG_GENERATED = Makefile config.cache config.log config.status configure.lineno \
+			autom4te*.cache $(PACKAGE_FILE)
+
+GAUCHE_PKGINCDIR  = $(DESTDIR)@GAUCHE_PKGINCDIR@
+GAUCHE_PKGLIBDIR  = $(DESTDIR)@GAUCHE_PKGLIBDIR@
+GAUCHE_PKGARCHDIR = $(DESTDIR)@GAUCHE_PKGARCHDIR@
+
+CPPFLAGS =	@CPPFLAGS@ -I$(srcdir)
+LIBS 	 =	@LIBS@
+
+all : $(TARGET)
+
+$(MODULE).$(SOEXT) : $(SRCS)
+	$(GAUCHE_PACKAGE) compile --verbose \
+		--cppflags="$(CPPFLAGS)" \
+		--libs="$(LIBS)" \
+		--local=$(LOCAL_PATHS) \
+		$(MODULE) $(SRCS)
+
+check-prepare: all
+	@mkdir -p $(PACKAGE_DIR)
+	cp -pf $(SCMFILES) $(PACKAGE_DIR)
+
+check : check-prepare
+	@rm -f test.log $(DBD_DIR)/test.log
+	$(GOSH) -I. test.scm > test.log
+
+install-check:
+	@rm -f test-install.log
+	$(GOSH) test.scm >test-install.log
+
+install : all
+	$(INSTALL) -m 444 -T $(GAUCHE_PKGINCDIR) $(HEADERS)
+	$(INSTALL) -m 444 -T $(GAUCHE_PKGLIBDIR) $(SCMFILES) 
+	$(INSTALL) -m 555 -T $(GAUCHE_PKGARCHDIR) $(ARCHFILES)
+	$(INSTALL) -m 444 -T $(GAUCHE_PKGLIBDIR)/.packages $(PACKAGE_FILE)
+
+uninstall :
+	$(INSTALL) -U $(GAUCHE_PKGINCDIR) $(HEADERS)
+	$(INSTALL) -U $(GAUCHE_PKGLIBDIR) $(SCMFILES) 
+	$(INSTALL) -U $(GAUCHE_PKGARCHDIR) $(ARCHFILES)
+	$(INSTALL) -U $(GAUCHE_PKGLIBDIR)/.packages $(PACKAGE_FILE)
+
+clean :
+	$(GAUCHE_PACKAGE) compile --clean mcrypt $(SRCS)
+	rm -rf core $(TARGET) *~ *.log $(DBD_DIR)/*.log so_locations $(PACKAGE_ROOT)
+
+distclean : clean
+	rm -rf $(CONFIG_GENERATED)
+
+maintainer-clean : clean
+	rm -rf $(CONFIG_GENERATED) configure VERSION

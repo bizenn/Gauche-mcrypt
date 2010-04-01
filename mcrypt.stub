@@ -1,0 +1,132 @@
+;;; -*- mode: scheme; coding: utf-8 -*-
+;;;
+;;; mcrypt.stub:
+;;;
+;;; Copyright (c) 2005-2008 Tatsuya BIZENN, All rights reserved.
+
+;;; Headers
+"
+#include \"mcrypt_if.h\"
+"
+
+(define-type <u8vector> "ScmU8Vector*")
+
+(define-cclass <mcrypt>
+  "ScmMcrypt*" "Scm_McryptClass"
+  ()
+  ())
+
+(define-cproc mcrypt-module-open (algo::<string> algo_dir
+				  mode::<string> mode_dir)
+  (call "Scm_mcrypt_module_open"))
+
+(define-cproc mcrypt? (obj)
+  (call <boolean> "SCM_MCRYPTP"))
+
+(define-cproc mcrypt-generic-init (mcrypt::<mcrypt>
+				   key::<string>
+				   iv::<u8vector>)
+  (call <void> "Scm_mcrypt_generic_init"))
+
+(define-cproc mcrypt-generic-deinit (mcrypt::<mcrypt>)
+  (call <void> "Scm_mcrypt_generic_deinit"))
+
+(define-cproc mcrypt-generic (mcrypt::<mcrypt>
+			      buf::<u8vector>
+			      buf_start::<int>
+			      buf_end::<int>)
+  (call <void> "Scm_mcrypt_generic"))
+
+(define-cproc mdecrypt-generic (mcrypt::<mcrypt>
+				buf::<u8vector>
+				buf_start::<int>
+				buf_end::<int>)
+  (call <void> "Scm_mdecrypt_generic"))
+
+(define-cproc mcrypt-block-mode? (mcrypt::<mcrypt>)
+  (call <boolean> "Scm_mcrypt_enc_is_block_algorithm_mode"))
+
+(define-cproc mcrypt-block-algorithm? (mcrypt::<mcrypt>)
+  (call <boolean> "Scm_mcrypt_enc_is_block_algorithm"))
+
+(define-cproc mcrypt-block-size (mcrypt::<mcrypt>)
+  (call "Scm_mcrypt_enc_get_block_size"))
+
+(define-cproc mcrypt-key-size (mcrypt::<mcrypt>)
+  (call "Scm_mcrypt_enc_get_key_size"))
+
+(define-cproc mcrypt-supported-key-sizes (mcrypt::<mcrypt>)
+  (call "Scm_mcrypt_enc_get_supported_key_sizes"))
+
+(define-cproc mcrypt-iv-size (mcrypt::<mcrypt>)
+  (call "Scm_mcrypt_enc_get_iv_size"))
+
+(define-cproc mcrypt-needs-iv? (mcrypt::<mcrypt>)
+  (call <boolean> "Scm_mcrypt_enc_mode_has_iv"))
+
+(define-cproc %open-input-decryption-port (src::<input-port>
+					   mcrypt::<mcrypt>
+					   padding::<fixnum>
+					   bufsize::<fixnum>
+					   ownerp::<boolean>)
+  (call "Scm_MakeInputDecryptionPort"))
+(define-cproc %open-output-encryption-port (sink::<output-port>
+					    mcrypt::<mcrypt>
+					    padding::<fixnum>
+					    bufsize::<fixnum>
+					    ownerp::<boolean>)
+  (call "Scm_MakeOutputEncryptionPort"))
+
+;;; Algorithms
+(define-constant BLOWFISH (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_BLOWFISH)"))
+(define-constant DES (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_DES)"))
+(define-constant 3DES (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_3DES)"))
+(define-constant 3WAY (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_3WAY)"))
+(define-constant GOST (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_GOST)"))
+(define-constant SAFER-SK64 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_SAFER_SK64)"))
+(define-constant SAFER-SK128 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_SAFER_SK128)"))
+(define-constant CAST-128 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_CAST_128)"))
+(define-constant xTEA (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_XTEA)"))
+(define-constant RC2 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_RC2)"))
+(define-constant TWOFISH (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_TWOFISH)"))
+(define-constant CAST-256 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_CAST_256)"))
+(define-constant SAFER+ (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_SAFERPLUS)"))
+(define-constant LOKI97 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_LOKI97)"))
+(define-constant SERPENT (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_SERPENT)"))
+(define-constant RIJNDAEL-128 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_RIJNDAEL_128)"))
+(define-constant RIJNDAEL-192 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_RIJNDAEL_192)"))
+(define-constant RIJNDAEL-256 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_RIJNDAEL_256)"))
+(define-constant AES-128 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_RIJNDAEL_128)"))
+(define-constant AES-192 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_RIJNDAEL_192)"))
+(define-constant AES-256 (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_RIJNDAEL_256)"))
+(define-constant ENIGMA (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_ENIGMA)"))
+(define-constant ARCFOUR (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_ARCFOUR)"))
+(define-constant WAKE (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_WAKE)"))
+
+;;; Modes
+(define-constant CBC (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_CBC)"))
+(define-constant ECB (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_ECB)"))
+(define-constant CFB (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_CFB)"))
+(define-constant OFB (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_OFB)"))
+(define-constant nOFB (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_nOFB)"))
+(define-constant STREAM (c "SCM_MAKE_STR_IMMUTABLE(MCRYPT_STREAM)"))
+
+;;; Padding
+(define-enum PADDING_UNKNOWN)
+(define-enum PADDING_STD)
+(define-enum PADDING_1_0s)
+(define-enum PADDING_SPACE)
+(define-enum PADDING_NULL)
+
+;;; Initialize
+"
+static void __stub_init(ScmModule*);
+void Scm_Init_mcrypt(void)
+{
+    ScmModule *mod;
+    SCM_INIT_EXTENSION(mcrypt);
+    mod = SCM_MODULE(SCM_FIND_MODULE(\"org.visha.crypt.mcrypt\", TRUE));
+    __stub_init(mod);
+}
+#define Scm_Init_mcrypt __stub_init
+"
