@@ -33,5 +33,13 @@
 	      (call-with-output-string (cut copy-port (current-input-port) <>)))
 	    :encoding "ISO-2022-JP"))))))
 
+(define (blowfish&base64-file->plain-text-file infile outfile)
+  (with-input-from-file infile
+    (lambda ()
+      (call-with-input-string (with-input-decryption-from-base64)
+	(lambda (in)
+	  (call-with-output-file outfile
+	    (cut copy-port in <>)))))))
+
 (define (main args)
   0)
