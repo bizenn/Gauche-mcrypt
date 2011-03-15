@@ -71,7 +71,7 @@ install-check:
 
 install : all
 	$(INSTALL) -m 444 -T $(GAUCHE_PKGINCDIR) $(HEADERS)
-	$(INSTALL) -m 444 -T $(GAUCHE_PKGLIBDIR) $(SCMFILES) 
+	for f in $(SCMFILES); do $(INSTALL) -m 444 -T $(GAUCHE_PKGLIBDIR) $(PACKAGE_DIR)/$$f; done
 	$(INSTALL) -m 555 -T $(GAUCHE_PKGARCHDIR) $(ARCHFILES)
 	$(INSTALL) -m 444 -T $(GAUCHE_PKGLIBDIR)/.packages $(PACKAGE_FILE)
 
